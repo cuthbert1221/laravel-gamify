@@ -2,6 +2,7 @@
 
 namespace QCod\Gamify;
 
+use PhpParser\Node\Expr\Cast\Int_;
 use QCod\Gamify\Events\ReputationChanged;
 
 trait HasReputations
@@ -12,14 +13,15 @@ trait HasReputations
      * @param PointType $pointType
      * @return bool
      */
-    public function givePoint(PointType $pointType)
+    public function givePoint(PointType $pointType, int $points_to_add)
     {
+        $pointType->setPayee($this);
         if (!$pointType->qualifier()) {
             return false;
         }
 
         if ($this->storeReputation($pointType)) {
-            return $pointType->payee()->addPoint($pointType->getPoints());
+            return $pointType->payee()->addPoint($points_to_add);
         }
     }
 
@@ -29,8 +31,9 @@ trait HasReputations
      * @param PointType $pointType
      * @return bool
      */
-    public function undoPoint(PointType $pointType)
+    public function undoPoint(PointType $pointType, int $points_to_remove)
     {
+        $pointType->setPayee($this);
         $reputation = $pointType->firstReputation();
 
         if (!$reputation) {
@@ -38,7 +41,7 @@ trait HasReputations
         }
 
         // undo reputation
-        $reputation->undo();
+        $reputation->undo($points_to_remove);
     }
 
     /**

@@ -33,10 +33,10 @@ class Reputation extends Model
      *
      * @throws \Exception
      */
-    public function undo()
+    public function undo($points_to_remove)
     {
         if ($this->exists) {
-            $this->payee->reducePoint($this->point);
+            $this->payee->reducePoint($points_to_remove);
             $this->delete();
         }
     }
